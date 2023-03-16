@@ -14,15 +14,16 @@
   background-size: cover;
 }
 
-#my-canvas {
+#confetti-canvas {
   position: fixed;
   top: 0;
   left: 0;
+  visibility: hidden;
   /* z-index: 100000; */
 }
 
-#my-canvas.stop {
-  visibility: hidden;
+#confetti-canvas.active {
+  visibility: visible;
 }
 
 body {

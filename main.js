@@ -3,7 +3,7 @@ window.addEventListener('load', () => {
   const points = document.querySelector('#point');
   const speed = document.querySelector('#speed');
   const resetButton = document.querySelector('#resetBtn');
-  const stopConfetti = document.querySelector('#my-canvas');
+  const startConfetti = document.querySelector('#confetti-canvas');
   const ctx = canvas.getContext('2d');
   const ballRadius = 20;
   const handleWidth = 100;
@@ -11,7 +11,6 @@ window.addEventListener('load', () => {
   const handlBorderRadius = 10;
 
   let animation;
-  let isDragging = false;
 
   let ballXAxis = canvas.width / 2;
   let ballYAxis = canvas.height - ballRadius - handleHeight;
@@ -28,8 +27,8 @@ window.addEventListener('load', () => {
   points.innerHTML = `Point: ${pointCount}`;
   speed.innerHTML = `Speed: ${speedCount}`;
 
-  let confettiSettings = { target: 'my-canvas' };
-  let confetti = new ConfettiGenerator(confettiSettings);
+  let confettiSettings = { target: 'confetti-canvas' };
+  let confettiRender = new ConfettiGenerator(confettiSettings);
 
   function drawHandle() {
     ctx.clearRect(0, canvas.height - handleHeight, canvas.width, canvas.height);
@@ -62,7 +61,6 @@ window.addEventListener('load', () => {
 
   function resetGame() {
     canvas.style.cursor = 'pointer';
-    isDragging = false;
     pointCount = 0;
     speedCount = 0;
     ballSpeed = 5;
@@ -70,7 +68,6 @@ window.addEventListener('load', () => {
     speed.innerHTML = `Speed: ${speedCount}`;
     localStorage.removeItem('items');
     cancelAnimationFrame(animation);
-    stopConfetti.classList.add('stop');
     ballXAxis = canvas.width / 2;
     ballYAxis = canvas.height - ballRadius - handleHeight;
     handleXAxis = (canvas.width - handleWidth) / 2;
@@ -85,6 +82,7 @@ window.addEventListener('load', () => {
       { brickXAxis: 400, brickLive: true },
     ];
     drawBricks();
+    startConfetti.classList.remove('active');
   }
 
   let bricks = [
@@ -95,7 +93,7 @@ window.addEventListener('load', () => {
     { brickXAxis: 400, brickLive: true },
   ];
 
-  function collisionDetection() {
+  function brickHitting() {
     for (let i = 0; i < 5; i++) {
       if (bricks[i].brickLive == true) {
         if (
@@ -110,12 +108,12 @@ window.addEventListener('load', () => {
     }
   }
 
-  function gameFinish() {
+  function gameWin() {
     if (bricks.slice(0, 5).every((brick) => !brick.brickLive)) {
       cancelAnimationFrame(animation);
-      isDragging = false;
       alert('YOU WIN, CONGRATS!');
-      confetti.render();
+      confettiRender.render();
+      startConfetti.classList.add('active');
       return;
     }
   }
@@ -127,7 +125,7 @@ window.addEventListener('load', () => {
         ctx.fillStyle = 'brown';
         ctx.fillRect(bricks[i].brickXAxis, brickYAxis, brickWidth, brickHeight);
         ctx.stroke();
-        collisionDetection();
+        brickHitting();
       }
     }
   }
@@ -172,7 +170,6 @@ window.addEventListener('load', () => {
         }
       } else if (ballYAxis > canvas.height - handleHeight - ballRadius) {
         cancelAnimationFrame(animation);
-        isDragging = false;
         alert('You Lose, to start again Press Reset');
         return;
       }
@@ -182,7 +179,7 @@ window.addEventListener('load', () => {
     drawHandle();
     drawBricks();
     animation = requestAnimationFrame(moveBall);
-    gameFinish();
+    gameWin();
   }
 
   function changingBallDirection() {
@@ -254,7 +251,6 @@ window.addEventListener('load', () => {
 
   canvas.addEventListener('mousedown', () => {
     if (ballYAxis == canvas.height - ballRadius - handleHeight) {
-      isDragging = true;
       dx = ballSpeed * Math.cos((90 * Math.PI) / 180);
       dy = -ballSpeed * Math.sin((90 * Math.PI) / 180);
       // dx = 5 * (Math.round(Math.random()) * 2 - 1); // to get -5 or 5.
@@ -264,8 +260,6 @@ window.addEventListener('load', () => {
   });
 
   window.addEventListener('mousemove', (e) => {
-    // if (!isDragging) return;
-    isDragging = true;
     canvas.style.cursor = 'grabbing';
 
     if (
