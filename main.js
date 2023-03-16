@@ -3,6 +3,7 @@ window.addEventListener('load', () => {
   const points = document.querySelector('#point');
   const speed = document.querySelector('#speed');
   const resetButton = document.querySelector('#resetBtn');
+  const stopConfetti = document.querySelector('#my-canvas');
   const ctx = canvas.getContext('2d');
   const ballRadius = 20;
   const handleWidth = 100;
@@ -26,6 +27,9 @@ window.addEventListener('load', () => {
   let brickYAxis = 0;
   points.innerHTML = `Point: ${pointCount}`;
   speed.innerHTML = `Speed: ${speedCount}`;
+
+  let confettiSettings = { target: 'my-canvas' };
+  let confetti = new ConfettiGenerator(confettiSettings);
 
   function drawHandle() {
     ctx.clearRect(0, canvas.height - handleHeight, canvas.width, canvas.height);
@@ -66,6 +70,7 @@ window.addEventListener('load', () => {
     speed.innerHTML = `Speed: ${speedCount}`;
     localStorage.removeItem('items');
     cancelAnimationFrame(animation);
+    stopConfetti.classList.add('stop');
     ballXAxis = canvas.width / 2;
     ballYAxis = canvas.height - ballRadius - handleHeight;
     handleXAxis = (canvas.width - handleWidth) / 2;
@@ -105,11 +110,12 @@ window.addEventListener('load', () => {
     }
   }
 
-  function gameOver() {
+  function gameFinish() {
     if (bricks.slice(0, 5).every((brick) => !brick.brickLive)) {
       cancelAnimationFrame(animation);
       isDragging = false;
       alert('YOU WIN, CONGRATS!');
+      confetti.render();
       return;
     }
   }
@@ -176,7 +182,7 @@ window.addEventListener('load', () => {
     drawHandle();
     drawBricks();
     animation = requestAnimationFrame(moveBall);
-    gameOver();
+    gameFinish();
   }
 
   function changingBallDirection() {

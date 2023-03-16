@@ -14,6 +14,17 @@
   background-size: cover;
 }
 
+#my-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  /* z-index: 100000; */
+}
+
+#my-canvas.stop {
+  visibility: hidden;
+}
+
 body {
   display: flex;
   justify-content: center;
